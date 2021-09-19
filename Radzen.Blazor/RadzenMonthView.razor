@@ -20,7 +20,7 @@
     public List<int> JobDays { get; set; }
 
     [Parameter]
-    public string ImgSrc { get; set; }
+    public Dictionary<string, string> VizitTypeDict { get; set; }
 
     [Parameter]
     public int? MaxAppointmentsInSlot { get; set; }
@@ -52,26 +52,26 @@
 
         if (MaxAppointmentsInSlot != null)
         {
-          maxAppointmentsInSlot = MaxAppointmentsInSlot.Value;
+            maxAppointmentsInSlot = MaxAppointmentsInSlot.Value;
         }
         else
         {
-          var slotHeight = (Scheduler.Height - 60) / 6;
-          maxAppointmentsInSlot = Convert.ToInt32(Math.Floor(slotHeight / 24)) - 1;
+            var slotHeight = (Scheduler.Height - 60) / 6;
+            maxAppointmentsInSlot = Convert.ToInt32(Math.Floor(slotHeight / 24)) - 1;
         }
 
-        return @<CascadingValue Value=@Scheduler>
-        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" MaxAppointmentsInSlot=@maxAppointmentsInSlot ImgSrc="@ImgSrc" MoreText=@MoreText Appointments=@appointments />
+        return@<CascadingValue Value=@Scheduler>
+        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments />
     </CascadingValue>;
-    }
+}
 
-    public override DateTime Next()
-    {
-        return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(1);
-    }
+public override DateTime Next()
+{
+return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(1);
+}
 
-    public override DateTime Prev()
-    {
-        return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(-1);
-    }
+public override DateTime Prev()
+{
+return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(-1);
+}
 }

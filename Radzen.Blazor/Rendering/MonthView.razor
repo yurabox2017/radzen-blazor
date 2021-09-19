@@ -80,10 +80,11 @@
                                 </div>
                                 @if (JobDays != null)
                                 {
-                                    @if (JobDays.Where(x => x == dayOfWeek.Day).Any())
+                                    @if (JobDays.Where(x => x == dayOfWeek.Day).Any() && (dayOfWeek >= DateTime.Now.StartOfMonth() && dayOfWeek <= DateTime.Now.EndOfMonth()))
                                     {
+                                        var vizit = Appointments.Where(x => x.Start == dayOfWeek)?.Select(x => x.Text).FirstOrDefault();
                                         <div class="col text-center pt-4">
-                                            <img src="@ImgSrc" />
+                                            <img src="@VizitTypeDict.TryGetValue(vizit,out var img)" />
                                         </div>
                                     }
                                 }
@@ -114,7 +115,7 @@
     public List<int> JobDays { get; set; }
 
     [Parameter]
-    public string ImgSrc { get; set; }
+    public Dictionary<string, string> VizitTypeDict { get; set; }
 
     [CascadingParameter]
     public IScheduler Scheduler { get; set; }
