@@ -7,9 +7,9 @@
     <div class="rz-view-header">
         @for (var date = StartDate; date <= StartDate.EndOfWeek(); date = date.AddDays(1))
         {
-            <div class="rz-slot-header">
-                @date.ToString("ddd")
-            </div>
+        <div class="rz-slot-header">
+            @date.ToString("ddd")
+        </div>
         }
     </div>
     @{
@@ -19,16 +19,16 @@
     <div class="rz-view-content">
         @for (var date = StartDate; date < EndDate; date = date.AddDays(7))
         {
-            <div class="rz-week">
-                <div class="rz-events">
-                    @for (var start = date; start < date.AddDays(7); start = start.AddDays(1))
+        <div class="rz-week">
+            <div class="rz-events">
+                @for (var start = date; start < date.AddDays(7); start = start.AddDays(1))
                     {
                         var end = start.AddDays(1);
                         var appointments = AppointmentsInSlot(start, end);
                         var excessCount = appointments.Count() - MaxAppointmentsInSlot;
                         var existingTops = ExistingTops(points, appointments.Take(MaxAppointmentsInSlot));
 
-                        @foreach (var item in appointments.Take(MaxAppointmentsInSlot))
+                @foreach (var item in appointments.Take(MaxAppointmentsInSlot))
                         {
                             var slotIndex = item.Start.Date.Subtract(date).Days;
                             var slotWidth = 100 / 7.0;
@@ -44,9 +44,9 @@
                             var height = 1.5;
                             var data = item;
 
-                            @if (item.Start >= start && item.Start <= end)
+                @if (item.Start >= start && item.Start <= end)
                             {
-                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
                             }
                             else if (start == date)
                             {
@@ -54,46 +54,51 @@
                                 length = Math.Max(1, Math.Min(7, Math.Ceiling(item.End.Subtract(date).TotalDays)));
                                 width = length * slotWidth;
 
-                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
                             }
                         }
 
-                        @if (excessCount > 0)
+                @if (excessCount > 0)
                         {
                             var slotIndex = start.Subtract(date).Days;
                             var slotWidth = 100 / 7.0;
                             var left = slotIndex * slotWidth;
                             var top = 1.5 * (MaxAppointmentsInSlot + 1);
                             var listDate = start;
-                            <a class="rz-event-list-btn" style="top: @(top.ToInvariantString())em; left: @(left.ToInvariantString())%" @onclick=@(args => OnListClick(listDate, appointments))>@String.Format(MoreText, excessCount)</a>
+                <a class="rz-event-list-btn" style="top: @(top.ToInvariantString())em; left: @(left.ToInvariantString())%" @onclick=@(args => OnListClick(listDate, appointments))>@String.Format(MoreText, excessCount)</a>
                         }
                     }
-                </div>
-                <div class="rz-slots">
-                    @for (var day = 0; day < 7; day++)
+            </div>
+            <div class="rz-slots">
+                @for (var day = 0; day < 7; day++)
                     {
                         var dayOfWeek = StartDate.AddDays(days++);
-                        <div class="rz-slot" @onclick="@(args => OnSlotClick(dayOfWeek))">
-                            <div class="w-100">
-                                <div class="rz-slot-title">
-                                    @dayOfWeek.Day
-                                </div>
-                                @if (JobDays != null)
+                <div class="rz-slot" @onclick="@(args => OnSlotClick(dayOfWeek))">
+                    <div class="w-100">
+                        <div class="rz-slot-title">
+                            @dayOfWeek.Day
+                        </div>
+                        @if (JobDays != null)
+                        {
+                            if (StartDate.Month == dayOfWeek.Month)
+                            {
+                                if (JobDays.Where(x => x == dayOfWeek.Day).Any())
                                 {
-                                    @if (JobDays.Where(x => x == dayOfWeek.Day).Any() && (dayOfWeek >= DateTime.Now.StartOfMonth() && dayOfWeek <= DateTime.Now.EndOfMonth()))
+                                    if (VizitTypeDict.TryGetValue("явка", out var img))
                                     {
-                                        var vizit = Appointments.Where(x => x.Start == dayOfWeek)?.Select(x => x.Text).FirstOrDefault();
-                                        <div class="col text-center pt-4">
-                                            <img src="@VizitTypeDict.TryGetValue(vizit,out var img)" />
+                                        <div class="col text-center pt-2">
+                                            <img src="@img"/>
                                         </div>
                                     }
                                 }
+                            }
+                        }
 
-                            </div>
-                        </div>
-                    }
+                    </div>
                 </div>
+                    }
             </div>
+        </div>
         }
     </div>
 </div>
@@ -177,7 +182,7 @@
         <CascadingValue Value=@Scheduler>
             @foreach (var item in appointments)
             {
-                <Appointment Data=@item Click="OnListEventClick" />
+            <Appointment Data=@item Click="OnListEventClick" />
             }
         </CascadingValue>
     </div>);
