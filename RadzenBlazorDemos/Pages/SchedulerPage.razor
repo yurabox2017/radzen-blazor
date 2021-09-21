@@ -9,7 +9,7 @@
                              SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
                 <RadzenDayView />
                 <RadzenWeekView />
-                <RadzenMonthView JobDays="@workDays"  VizitTypeDict="@VizitDict" />
+                <RadzenMonthView JobDays="@workDays" VizitTypeDict="@VizitDict" />
             </RadzenScheduler>
         </div>
         <div class="col-xl-6">
@@ -23,10 +23,10 @@
     EventConsole console;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
 
-    private List<int> workDays = new List<int>() { 1, 5, 7,19 };
+    private List<int> workDays = new List<int>() { 1, 5, 7, 19, 31 };
 
     public static Dictionary<string, string> VizitDict => new Dictionary<string, string>
-    {
+{
         {"Явка", "Images/check-mark.png"}, {"Болел", ""}, {"Отсутствовал", ""},{"BirthDay","Images/check-mark.png"}
     };
 

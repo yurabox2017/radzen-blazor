@@ -85,7 +85,7 @@
                             </div>
                         </div>
                     }
-                    @CleareDates?.Invoke(_ => CleareDates());
+
                 </div>
             </div>
         }
@@ -93,11 +93,11 @@
 </div>
 
 @code {
-    private (DateTime? startDate, DateTime? endDate) dates;
+
     [Parameter]
     public DateTime StartDate { get; set; }
 
-    public Action CleareDates => () = dates.startDate = null;
+    private bool isCurrentMonth = false;
 
     [Parameter]
     public DateTime EndDate { get; set; }
@@ -170,13 +170,14 @@
     private string SetSlotImage(DateTime dayOfWeek)
     {
         string imgSrc = string.Empty;
-        if (dayOfWeek.Day != 1 && dates.startDate is null)
+        if (dayOfWeek.Day != 1)
             return imgSrc;
         else
-            dates = (dayOfWeek, dayOfWeek.EndOfMonth());
+            isCurrentMonth = !isCurrentMonth;
 
-        if (dayOfWeek > dates.endDate)
+        if (isCurrentMonth == false)
             return imgSrc;
+
 
         if (JobDays.Where(x => x == dayOfWeek.Day).Any())
         {
@@ -187,7 +188,7 @@
                        select v1.Value)
                .FirstOrDefault());
         }
-        if (imgSrc is null)
+        if (string.IsNullOrEmpty(imgSrc))
             VizitTypeDict.TryGetValue("явка", out imgSrc);
 
         return imgSrc;
