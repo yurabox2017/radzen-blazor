@@ -17,7 +17,16 @@
     public override string Text { get; set; } = "Month";
 
     [Parameter]
+    public string Style { get; set; }
+
+    [Parameter]
     public List<int> JobDays { get; set; }
+
+    [Parameter]
+    public bool ShowImages { get; set; } = false;
+
+    [Parameter]
+    public string ImgDefault { get; set; }
 
     [Parameter]
     public Dictionary<string, string> VizitTypeDict { get; set; }
@@ -61,7 +70,7 @@
         }
 
         return@<CascadingValue Value=@Scheduler>
-        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments />
+        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" Style="@Style" ImgDefault="@ImgDefault" ShowImages="@ShowImages" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments />
     </CascadingValue>;
 }
 

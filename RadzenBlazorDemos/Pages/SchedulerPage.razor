@@ -23,7 +23,12 @@
     EventConsole console;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
 
-    private List<int> workDays = new List<int>() { 1, 5, 7, 19, 31 };
+    private List<int> workDays;
+
+    protected override void OnInitialized()
+    {
+        workDays = new List<int>() {1, 5, 7, 19, 31};
+    }
 
     public static Dictionary<string, string> VizitDict => new Dictionary<string, string>
 {
