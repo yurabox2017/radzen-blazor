@@ -196,7 +196,7 @@
         {
             imgSrc = ((from appointment in Appointments
                        join v1 in VizitTypeDict on appointment.Text equals v1.Key
-                       where appointment.Start == dayOfWeek && appointment.End <= DateTime.Now
+                       where appointment.Start <= dayOfWeek && appointment.End >= dayOfWeek && appointment.End <= DateTime.Now.AddDays(1)
                        orderby appointment.Text
                        select v1.Value)
                .FirstOrDefault());
