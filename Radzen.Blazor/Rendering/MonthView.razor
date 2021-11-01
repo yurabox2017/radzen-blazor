@@ -4,262 +4,262 @@
 @inject DialogService DialogService
 
 <div class="rz-view rz-month-view">
-	<div class="rz-view-header">
-		@for (var date = StartDate; date <= StartDate.EndOfWeek(); date = date.AddDays(1))
-		{
-			<div class="rz-slot-header">
-				@date.ToString("ddd")
-			</div>
-		}
-	</div>
-	@{
-		var days = 0;
-		var points = new Dictionary<AppointmentData, double>();
-	}
-	<div class="rz-view-content">
-		@for (var date = StartDate; date < EndDate; date = date.AddDays(7))
-		{
-			<div class="rz-week">
-				<div class="rz-events">
-					@for (var start = date; start < date.AddDays(7); start = start.AddDays(1))
-					{
-						var end = start.AddDays(1);
+    <div class="rz-view-header">
+        @for (var date = StartDate; date <= StartDate.EndOfWeek(); date = date.AddDays(1))
+        {
+            <div class="rz-slot-header">
+                @date.ToString("ddd")
+            </div>
+        }
+    </div>
+    @{
+        var days = 0;
+        var points = new Dictionary<AppointmentData, double>();
+    }
+    <div class="rz-view-content">
+        @for (var date = StartDate; date < EndDate; date = date.AddDays(7))
+        {
+            <div class="rz-week">
+                <div class="rz-events">
+                    @for (var start = date; start < date.AddDays(7); start = start.AddDays(1))
+                    {
+                        var end = start.AddDays(1);
 
-						GetJobDaysEqualCurrentDate(end, out var jobEqualDate);
+                        //	GetJobDaysEqualCurrentDate(end, out var jobEqualDate);
 
-						var appointments = AppointmentsInSlot(start, end);
-						var excessCount = appointments.Count() - MaxAppointmentsInSlot;
-						var existingTops = ExistingTops(points, appointments.Take(MaxAppointmentsInSlot));
-						var jobDate = 0d;
+                        var appointments = AppointmentsInSlot(start, end);
+                        var excessCount = appointments.Count() - MaxAppointmentsInSlot;
+                        var existingTops = ExistingTops(points, appointments.Take(MaxAppointmentsInSlot));
+                        var jobDate = 0d;
 
-						@foreach (var item in appointments.Take(MaxAppointmentsInSlot))
-						{
-							if (jobEqualDate.HasValue)
-								jobDate = jobEqualDate.Value.Date.Subtract(date.Date).Days;
+                        @foreach (var item in appointments.Take(MaxAppointmentsInSlot))
+                        {
+                            @*		if (jobEqualDate.HasValue)
+                                jobDate = jobEqualDate.Value.Date.Subtract(date.Date).Days;
+                            *@
+                            var slotIndex = start.Date.Subtract(date.Date).Days; // item.Start.Date.Subtract(date).Days;
+                            var slotWidth = 100 / 7.0;
+                            var left = slotIndex * slotWidth;
+                            var length = Math.Max(1, Math.Ceiling(item.End.Subtract(date).TotalDays) - slotIndex);
+                            var width = slotWidth;// jobEqualDate.HasValue ? slotWidth : item.End <= date.AddDays(7) ? (length) * slotWidth : (7 - slotIndex) * slotWidth;
+                            if (!points.TryGetValue(item, out var top))
+                            {
+                                top = DetermineTop(existingTops);
+                                points.Add(item, top);
+                                existingTops.Add(top);
+                            }
+                            var height = 1.5;
+                            var data = item;
 
-							var slotIndex = item.Start.Date.Subtract(date).Days;
-							var slotWidth = 100 / 7.0;
-							var left = (jobEqualDate.HasValue ? jobDate : slotIndex) * slotWidth;
-							var length = Math.Max(1, Math.Ceiling(item.End.Subtract(date).TotalDays) - slotIndex);
-							var width = jobEqualDate.HasValue ? slotWidth : item.End <= date.AddDays(7) ? (length) * slotWidth : (7 - slotIndex) * slotWidth;
-							if (!points.TryGetValue(item, out var top))
-							{
-								top = DetermineTop(existingTops);
-								points.Add(item, top);
-								existingTops.Add(top);
-							}
-							var height = 1.5;
-							var data = item;
+                            @*				if (JobDays != null)
+                                {
+                                if (jobEqualDate != null)
+                                {
+                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                                }
+                                }
+                                else
+                                {*@
 
-							if (JobDays != null)
-							{
-								if (jobEqualDate != null)
-								{
-									<Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
-								}
-							}
-							else
-							{
+                            if (start >= item.Start && end <= item.End)
+                            {
+                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                            }
+                            @*else if (start == date)
+                                {
+                                    left = 0;
+                                    length = Math.Max(1, Math.Min(7, Math.Ceiling(item.End.Subtract(date).TotalDays)));
+                                    width = slotWidth;// length * slotWidth;
 
-								if (item.Start >= start && item.Start <= end)
-								{
-									<Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
-								}
-								else if (start == date)
-								{
-									left = 0;
-									length = Math.Max(1, Math.Min(7, Math.Ceiling(item.End.Subtract(date).TotalDays)));
-									width = length * slotWidth;
+                                    <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                                }*@
+                            @*}*@
+                        }
 
-									<Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
-								}
-							}
-						}
+                        @if (excessCount > 0)
+                        {
+                            var slotIndex = start.Subtract(date).Days;
+                            var slotWidth = 100 / 7.0;
+                            var left = slotIndex * slotWidth;
+                            var top = 1.5 * (MaxAppointmentsInSlot + 1);
+                            var listDate = start;
+                            <a class="rz-event-list-btn" style="top: @(top.ToInvariantString())em; left: @(left.ToInvariantString())%" @onclick=@(args => OnListClick(listDate, appointments))>@String.Format(MoreText, excessCount)</a>
+                        }
+                    }
+                </div>
+                <div class="rz-slots">
+                    @for (var day = 0; day < 7; day++)
+                    {
+                        var dayOfWeek = StartDate.AddDays(days++);
+                        <div class="rz-slot" @onclick="@(args => OnSlotClick(dayOfWeek))">
+                            <div class="w-100">
+                                <div class="rz-slot-title">
+                                    @dayOfWeek.Day
+                                </div>
+                                @if (ShowImages)
+                                {
+                                    <div class='@Style'><img src='@SetSlotImage(dayOfWeek)' /></div>
+                                }
+                            </div>
+                        </div>
+                    }
 
-						@if (excessCount > 0)
-						{
-							var slotIndex = start.Subtract(date).Days;
-							var slotWidth = 100 / 7.0;
-							var left = slotIndex * slotWidth;
-							var top = 1.5 * (MaxAppointmentsInSlot + 1);
-							var listDate = start;
-							<a class="rz-event-list-btn" style="top: @(top.ToInvariantString())em; left: @(left.ToInvariantString())%" @onclick=@(args => OnListClick(listDate, appointments))>@String.Format(MoreText, excessCount)</a>
-						}
-					}
-				</div>
-				<div class="rz-slots">
-					@for (var day = 0; day < 7; day++)
-					{
-						var dayOfWeek = StartDate.AddDays(days++);
-						<div class="rz-slot" @onclick="@(args => OnSlotClick(dayOfWeek))">
-							<div class="w-100">
-								<div class="rz-slot-title">
-									@dayOfWeek.Day
-								</div>
-								@if (ShowImages)
-								{
-									<div class='@Style'><img src='@SetSlotImage(dayOfWeek)' /></div>
-								}
-							</div>
-						</div>
-					}
-
-				</div>
-			</div>
-		}
-	</div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @code {
 
-	[Parameter]
-	public DateTime StartDate { get; set; }
+    [Parameter]
+    public DateTime StartDate { get; set; }
 
-	[Parameter]
-	public string Style { get; set; }
+    [Parameter]
+    public string Style { get; set; }
 
-	[Parameter]
-	public bool ShowImages { get; set; } = false;
+    [Parameter]
+    public bool ShowImages { get; set; } = false;
 
-	private bool isCurrentMonth = false;
+    private bool isCurrentMonth = false;
 
-	[Parameter]
-	public DateTime EndDate { get; set; }
+    [Parameter]
+    public DateTime EndDate { get; set; }
 
-	[Parameter]
-	public string ImgDefault { get; set; }
+    [Parameter]
+    public string ImgDefault { get; set; }
 
-	[Parameter]
-	public int MaxAppointmentsInSlot { get; set; }
+    [Parameter]
+    public int MaxAppointmentsInSlot { get; set; }
 
-	[Parameter]
-	public string MoreText { get; set; }
+    [Parameter]
+    public string MoreText { get; set; }
 
-	[Parameter]
-	public List<int> JobDays { get; set; }
+    [Parameter]
+    public List<int> JobDays { get; set; }
 
-	[Parameter]
-	public Dictionary<string, string> VizitTypeDict { get; set; }
+    [Parameter]
+    public Dictionary<string, string> VizitTypeDict { get; set; }
 
-	[CascadingParameter]
-	public IScheduler Scheduler { get; set; }
+    [CascadingParameter]
+    public IScheduler Scheduler { get; set; }
 
-	[Parameter]
-	public IEnumerable<AppointmentData> Appointments { get; set; }
+    [Parameter]
+    public IEnumerable<AppointmentData> Appointments { get; set; }
 
-	async Task OnSlotClick(DateTime date)
-	{
-		await Scheduler.SelectSlot(date, date.AddDays(1));
-	}
+    async Task OnSlotClick(DateTime date)
+    {
+        await Scheduler.SelectSlot(date, date.AddDays(1));
+    }
 
-	double DetermineTop(HashSet<double> existingTops)
-	{
-		var top = 1.5;
+    double DetermineTop(HashSet<double> existingTops)
+    {
+        var top = 1.5;
 
-		while (existingTops.Contains(top))
-		{
-			top += 1.5;
-		}
+        while (existingTops.Contains(top))
+        {
+            top += 1.5;
+        }
 
-		return top;
-	}
+        return top;
+    }
 
-	HashSet<double> ExistingTops(IDictionary<AppointmentData, double> tops, IEnumerable<AppointmentData> appointments)
-	{
-		var existingTops = new HashSet<double>();
+    HashSet<double> ExistingTops(IDictionary<AppointmentData, double> tops, IEnumerable<AppointmentData> appointments)
+    {
+        var existingTops = new HashSet<double>();
 
-		foreach (var appointment in appointments)
-		{
-			if (tops.TryGetValue(appointment, out var existingTop))
-			{
-				existingTops.Add(existingTop);
-			}
-		}
+        foreach (var appointment in appointments)
+        {
+            if (tops.TryGetValue(appointment, out var existingTop))
+            {
+                existingTops.Add(existingTop);
+            }
+        }
 
-		return existingTops;
-	}
+        return existingTops;
+    }
 
-	async Task OnAppointmentClick(AppointmentData data)
-	{
-		await Scheduler.SelectAppointment(data);
-	}
+    async Task OnAppointmentClick(AppointmentData data)
+    {
+        await Scheduler.SelectAppointment(data);
+    }
 
-	private AppointmentData[] AppointmentsInSlot(DateTime start, DateTime end)
-	{
-		if (Appointments == null)
-		{
-			return Array.Empty<AppointmentData>();
-		}
+    private AppointmentData[] AppointmentsInSlot(DateTime start, DateTime end)
+    {
+        if (Appointments == null)
+        {
+            return Array.Empty<AppointmentData>();
+        }
 
-		return Appointments.Where(item => Scheduler.IsAppointmentInRange(item, start, end)).OrderBy(item => item.Start).ThenByDescending(item => item.End).ToArray();
-	}
+        return Appointments.Where(item => Scheduler.IsAppointmentInRange(item, start, end)).OrderBy(item => item.Start).ThenByDescending(item => item.End).ToArray();
+    }
 
-	public string SetSlotImage(DateTime dayOfWeek)
-	{
-		string imgSrc = string.Empty;
+    public string SetSlotImage(DateTime dayOfWeek)
+    {
+        string imgSrc = string.Empty;
 
-		if (dayOfWeek.Day != 1 && !isCurrentMonth)
-			return imgSrc;
-		else if (dayOfWeek.Day == 1 && !isCurrentMonth)
-			isCurrentMonth = !isCurrentMonth;
-		else if (dayOfWeek.Day == 1 && isCurrentMonth)
-			isCurrentMonth = !isCurrentMonth;
+        if (dayOfWeek.Day != 1 && !isCurrentMonth)
+            return imgSrc;
+        else if (dayOfWeek.Day == 1 && !isCurrentMonth)
+            isCurrentMonth = !isCurrentMonth;
+        else if (dayOfWeek.Day == 1 && isCurrentMonth)
+            isCurrentMonth = !isCurrentMonth;
 
-		if (isCurrentMonth == false)
-			return imgSrc;
-		if (JobDays is null)
-			return imgSrc;
+        if (isCurrentMonth == false)
+            return imgSrc;
+        if (JobDays is null)
+            return imgSrc;
 
-		if (JobDays.Where(x => x == dayOfWeek.Day).Any())
-		{
-			imgSrc = ((from appointment in Appointments
-								join v1 in VizitTypeDict on appointment.Text equals v1.Key
-								where appointment.Start <= dayOfWeek && appointment.End >= dayOfWeek && appointment.End <= DateTime.Now.AddDays(1)
-								orderby appointment.Text
-								select v1.Value)
-						.FirstOrDefault());
+        if (JobDays.Where(x => x == dayOfWeek.Day).Any())
+        {
+            imgSrc = ((from appointment in Appointments
+                       join v1 in VizitTypeDict on appointment.Text equals v1.Key
+                       where appointment.Start <= dayOfWeek && appointment.End >= dayOfWeek && appointment.End <= DateTime.Now.AddDays(1)
+                       orderby appointment.Text
+                       select v1.Value)
+                        .FirstOrDefault());
 
-			if (string.IsNullOrEmpty(imgSrc))
-				imgSrc = ImgDefault;
-		}
-
-
-		return imgSrc;
-
-	}
-
-	async Task OnListClick(DateTime date, IEnumerable<AppointmentData> appointments)
-	{
-		await DialogService.OpenAsync(date.ToShortDateString(), ds =>
-	@<div class="rz-event-list">
-		<CascadingValue Value=@Scheduler>
-			@foreach (var item in appointments)
-				{
-					<Appointment Data=@item Click="OnListEventClick" />
-				}
-			</CascadingValue>
-		</div>
-	);
-	}
+            if (string.IsNullOrEmpty(imgSrc))
+                imgSrc = ImgDefault;
+        }
 
 
+        return imgSrc;
 
-	async Task OnListEventClick(AppointmentData data)
-	{
-		DialogService.Close();
+    }
 
-		await OnAppointmentClick(data);
-	}
+    async Task OnListClick(DateTime date, IEnumerable<AppointmentData> appointments)
+    {
+        await DialogService.OpenAsync(date.ToShortDateString(), ds =>
+    @<div class="rz-event-list">
+        <CascadingValue Value=@Scheduler>
+            @foreach (var item in appointments)
+            {
+                <Appointment Data=@item Click="OnListEventClick" />
+            }
+        </CascadingValue>
+    </div>
+    );
+    }
 
-	private void GetJobDaysEqualCurrentDate(DateTime date, out DateTime? currDate)
-	{
-		currDate = null;
-		if (JobDays != null)
-		{
-			DateTime? jobDaysEqualToDate = JobDays.Where(x => x == date.Day).Select(x => new DateTime(date.Year, date.Month, x)).FirstOrDefault();
 
-			currDate = jobDaysEqualToDate == DateTime.MinValue ? null : jobDaysEqualToDate;
-		}
 
-	}
+    async Task OnListEventClick(AppointmentData data)
+    {
+        DialogService.Close();
+
+        await OnAppointmentClick(data);
+    }
+
+    private void GetJobDaysEqualCurrentDate(DateTime date, out DateTime? currDate)
+    {
+        currDate = null;
+        if (JobDays != null)
+        {
+            DateTime? jobDaysEqualToDate = JobDays.Where(x => x == date.Day).Select(x => new DateTime(date.Year, date.Month, x)).FirstOrDefault();
+
+            currDate = jobDaysEqualToDate == DateTime.MinValue ? null : jobDaysEqualToDate;
+        }
+
+    }
 }
