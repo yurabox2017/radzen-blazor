@@ -5,85 +5,85 @@
 
 @code {
 
-    public override string Title
-    {
-        get
-        {
-            return Scheduler.CurrentDate.ToString("MMMM yyyy");
-        }
-    }
+	public override string Title
+	{
+		get
+		{
+			return Scheduler.CurrentDate.ToString("MMMM yyyy");
+		}
+	}
 
-    [Parameter]
-    public override string Text { get; set; } = "Month";
+	[Parameter]
+	public override string Text { get; set; } = "Month";
 
-    [Parameter]
-    public string Style { get; set; }
+	[Parameter]
+	public string Style { get; set; }
 
-    [Parameter]
-    public List<int> JobDays { get; set; }
+	[Parameter]
+	public List<int> JobDays { get; set; }
 
-    [Parameter]
-    public string[] ExcludeVizitTypes { get; set; }
+	[Parameter]
+	public string[] ExcludeVizitTypes { get; set; }
 
-    [Parameter]
-    public bool ShowImages { get; set; } = false;
+	[Parameter]
+	public bool ShowImages { get; set; } = false;
 
-    [Parameter]
-    public string ImgDefault { get; set; }
+	[Parameter]
+	public string ImgDefault { get; set; }
 
-    [Parameter]
-    public Dictionary<string, string> VizitTypeDict { get; set; }
+	[Parameter]
+	public Dictionary<string, string> VizitTypeDict { get; set; }
 
-    [Parameter]
-    public int? MaxAppointmentsInSlot { get; set; }
+	[Parameter]
+	public int? MaxAppointmentsInSlot { get; set; }
 
-    [Parameter]
-    public string MoreText { get; set; } = "+ {0} more";
+	[Parameter]
+	public string MoreText { get; set; } = "+ {0} more";
 
-    public override DateTime StartDate
-    {
-        get
-        {
-            return Scheduler.CurrentDate.Date.StartOfMonth().StartOfWeek();
-        }
-    }
+	public override DateTime StartDate
+	{
+		get
+		{
+			return Scheduler.CurrentDate.Date.StartOfMonth().StartOfWeek();
+		}
+	}
 
-    public override DateTime EndDate
-    {
-        get
-        {
-            return Scheduler.CurrentDate.Date.EndOfMonth().EndOfWeek().AddDays(1);
-        }
-    }
+	public override DateTime EndDate
+	{
+		get
+		{
+			return Scheduler.CurrentDate.Date.EndOfMonth().EndOfWeek().AddDays(1);
+		}
+	}
 
-    public override RenderFragment Render()
-    {
-        var appointments = Scheduler.GetAppointmentsInRange(StartDate, EndDate);
+	public override RenderFragment Render()
+	{
+		var appointments = Scheduler.GetAppointmentsInRange(StartDate, EndDate);
 
-        var maxAppointmentsInSlot = 0;
+		var maxAppointmentsInSlot = 0;
 
-        if (MaxAppointmentsInSlot != null)
-        {
-            maxAppointmentsInSlot = MaxAppointmentsInSlot.Value;
-        }
-        else
-        {
-            var slotHeight = (Scheduler.Height - 60) / 6;
-            maxAppointmentsInSlot = Convert.ToInt32(Math.Floor(slotHeight / 24)) - 1;
-        }
+		if (MaxAppointmentsInSlot != null)
+		{
+			maxAppointmentsInSlot = MaxAppointmentsInSlot.Value;
+		}
+		else
+		{
+			var slotHeight = (Scheduler.Height - 60) / 6;
+			maxAppointmentsInSlot = Convert.ToInt32(Math.Floor(slotHeight / 24)) - 1;
+		}
 
-        return@<CascadingValue Value=@Scheduler>
-        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" Style="@Style" ImgDefault="@ImgDefault" ShowImages="@ShowImages" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments ExcludeVizitTypes="@ExcludeVizitTypes" />
-    </CascadingValue>;
-}
+		return@<CascadingValue Value=@Scheduler>
+		<MonthView StartDate=@StartDate EndDate=@EndDate JobDays=@JobDays Style=@Style ImgDefault=@ImgDefault ShowImages=@ShowImages MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict=@VizitTypeDict MoreText=@MoreText Appointments=@appointments />
+	</CascadingValue>;
+	}
 
-public override DateTime Next()
-{
-return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(1);
-}
+	public override DateTime Next()
+	{
+		return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(1);
+	}
 
-public override DateTime Prev()
-{
-return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(-1);
-}
+	public override DateTime Prev()
+	{
+		return Scheduler.CurrentDate.Date.StartOfMonth().AddMonths(-1);
+	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Radzen.Blazor
 {
@@ -15,7 +16,7 @@ namespace Radzen.Blazor
             return obj is AppointmentData data &&
                    Start == data.Start &&
                    End == data.End &&
-                   Text == data.Text &&
+                   Text == String.Format(CultureInfo.InvariantCulture, "{0}", data.Text) &&
                    EqualityComparer<object>.Default.Equals(Data, data.Data);
         }
 
