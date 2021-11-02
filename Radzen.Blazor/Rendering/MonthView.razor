@@ -25,19 +25,24 @@
                     {
                         var end = start.AddDays(1);
 
-                        //	GetJobDaysEqualCurrentDate(end, out var jobEqualDate);
+
 
                         var appointments = AppointmentsInSlot(start, end);
                         var excessCount = appointments.Count() - MaxAppointmentsInSlot;
                         var existingTops = ExistingTops(points, appointments.Take(MaxAppointmentsInSlot));
-                        var jobDate = 0d;
+
 
                         @foreach (var item in appointments.Take(MaxAppointmentsInSlot))
                         {
-                            @*		if (jobEqualDate.HasValue)
-                                jobDate = jobEqualDate.Value.Date.Subtract(date.Date).Days;
-                            *@
-                            var slotIndex = start.Date.Subtract(date.Date).Days; // item.Start.Date.Subtract(date).Days;
+                            var slotIndex = 0d;
+
+                            var jobEqualDate = ExistingJobDays(start.Date);
+
+                            if (jobEqualDate.HasValue)
+                                slotIndex = jobEqualDate.Value.Date.Subtract(date.Date).Days;
+                            else
+                                slotIndex = start.Date.Subtract(date.Date).Days; // item.Start.Date.Subtract(date).Days;
+
                             var slotWidth = 100 / 7.0;
                             var left = slotIndex * slotWidth;
                             var length = Math.Max(1, Math.Ceiling(item.End.Subtract(date).TotalDays) - slotIndex);
@@ -51,29 +56,17 @@
                             var height = 1.5;
                             var data = item;
 
-                            @*				if (JobDays != null)
-                                {
-                                if (jobEqualDate != null)
-                                {
-                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
-                                }
-                                }
-                                else
-                                {*@
-
-                            if (start >= item.Start && end <= item.End)
+                            if (jobEqualDate != null)
                             {
                                 <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
                             }
-                            @*else if (start == date)
-                                {
-                                    left = 0;
-                                    length = Math.Max(1, Math.Min(7, Math.Ceiling(item.End.Subtract(date).TotalDays)));
-                                    width = slotWidth;// length * slotWidth;
 
-                                    <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
-                                }*@
-                            @*}*@
+                            if (start >= item.Start && end <= item.End && !data.Text.In(ExcludeVizitTypes))
+                            {
+
+                                <Appointment Data=@item Top=@top Left=@left Width=@width Height=@height Click=@OnAppointmentClick />
+                            }
+
                         }
 
                         @if (excessCount > 0)
@@ -120,6 +113,9 @@
 
     [Parameter]
     public bool ShowImages { get; set; } = false;
+
+    [Parameter]
+    public string[] ExcludeVizitTypes { get; set; }
 
     private bool isCurrentMonth = false;
 
@@ -251,15 +247,16 @@
         await OnAppointmentClick(data);
     }
 
-    private void GetJobDaysEqualCurrentDate(DateTime date, out DateTime? currDate)
+    private DateTime? ExistingJobDays(DateTime date)
     {
-        currDate = null;
+        DateTime? currDate = null;
         if (JobDays != null)
         {
             DateTime? jobDaysEqualToDate = JobDays.Where(x => x == date.Day).Select(x => new DateTime(date.Year, date.Month, x)).FirstOrDefault();
 
             currDate = jobDaysEqualToDate == DateTime.MinValue ? null : jobDaysEqualToDate;
-        }
 
+        }
+        return currDate;
     }
 }

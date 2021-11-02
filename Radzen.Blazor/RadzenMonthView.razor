@@ -23,6 +23,9 @@
     public List<int> JobDays { get; set; }
 
     [Parameter]
+    public string[] ExcludeVizitTypes { get; set; }
+
+    [Parameter]
     public bool ShowImages { get; set; } = false;
 
     [Parameter]
@@ -70,7 +73,7 @@
         }
 
         return@<CascadingValue Value=@Scheduler>
-        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" Style="@Style" ImgDefault="@ImgDefault" ShowImages="@ShowImages" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments />
+        <MonthView StartDate=@StartDate EndDate=@EndDate JobDays="@JobDays" Style="@Style" ImgDefault="@ImgDefault" ShowImages="@ShowImages" MaxAppointmentsInSlot=@maxAppointmentsInSlot VizitTypeDict="@VizitTypeDict" MoreText=@MoreText Appointments=@appointments ExcludeVizitTypes="@ExcludeVizitTypes" />
     </CascadingValue>;
 }
 
