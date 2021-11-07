@@ -32,14 +32,9 @@
 
 						@foreach (var item in appointments.Take(MaxAppointmentsInSlot))
 						{
-							var slotIndex = 0d;
 
-							var jobEqualDate = ExistingJobDays(start.Date);
-
-							if (jobEqualDate.HasValue)
-								slotIndex = jobEqualDate.Value.Date.Subtract(date.Date).Days;
-							else
-								slotIndex = start.Date.Subtract(date.Date).Days; // item.Start.Date.Subtract(date).Days;
+							var jobEqualDate = ExistingJobDays(start.Date, item);
+							var slotIndex = start.Date.Subtract(date.Date).Days; // item.Start.Date.Subtract(date).Days;
 
 							var slotWidth = 100 / 7.0;
 							var left = slotIndex * slotWidth;
@@ -52,13 +47,23 @@
 								existingTops.Add(top);
 							}
 							var height = 1.5;
-							var opasity = .6;
+							var opacity = 1.0;
 							var data = item;
+
+							if (item.Text.ToUpper().In("БОЛЕЛ", "ОТСУТСТВОВАЛ"))
+								opacity = jobEqualDate.HasValue ? 1.0 : 0.2;
 
 							if (start >= item.Start && end <= item.End)
 							{
-								<Appointment Data=@item Top=@top Left=@left Width=@width Opasity=@opasity Height=@height Click=@OnAppointmentClick />
+								<Appointment Data=@item Top=@top Left=@left Width=@width Opacity=@opacity Height=@height Click=@OnAppointmentClick />
 							}
+
+				@*			if (item.End.Date == end.Date)
+							{
+								left += slotWidth;
+
+								<Appointment Data=@item Top=@top Left=@left Width=@width Opacity=@opacity Height=@height Click=@OnAppointmentClick />
+							}*@
 
 						}
 
@@ -123,7 +128,7 @@
 	public string MoreText { get; set; }
 
 	[Parameter]
-	public List<int> JobDays { get; set; }
+	public List<DateTime> JobDays { get; set; }
 
 	[Parameter]
 	public Dictionary<string, string> VizitTypeDict { get; set; }
@@ -185,23 +190,23 @@
 	{
 		string imgSrc = string.Empty;
 
-		if (dayOfWeek.Day != 1 && !isCurrentMonth)
-			return imgSrc;
-		else if (dayOfWeek.Day == 1 && !isCurrentMonth)
-			isCurrentMonth = !isCurrentMonth;
-		else if (dayOfWeek.Day == 1 && isCurrentMonth)
-			isCurrentMonth = !isCurrentMonth;
+		//if (dayOfWeek.Day != 1 && !isCurrentMonth)
+		//	return imgSrc;
+		//else if (dayOfWeek.Day == 1 && !isCurrentMonth)
+		//	isCurrentMonth = !isCurrentMonth;
+		//else if (dayOfWeek.Day == 1 && isCurrentMonth)
+		//	isCurrentMonth = !isCurrentMonth;
 
-		if (isCurrentMonth == false)
-			return imgSrc;
+		//if (isCurrentMonth == false)
+		//	return imgSrc;
 		if (JobDays is null)
 			return imgSrc;
 
-		if (JobDays.Where(x => x == dayOfWeek.Day).Any())
+		if (JobDays.Where(x => x == dayOfWeek).Any())
 		{
 			imgSrc = ((from appointment in Appointments
 								join v1 in VizitTypeDict on appointment.Text equals v1.Key
-								where appointment.Start <= dayOfWeek && appointment.End >= dayOfWeek && appointment.End <= DateTime.Now.AddDays(1)
+								where appointment.Start <= dayOfWeek && appointment.End.Date.AddDays(-1) >= dayOfWeek && appointment.End <= DateTime.Now.AddDays(1)
 								orderby appointment.Text
 								select v1.Value)
 						.FirstOrDefault());
@@ -238,12 +243,13 @@
 		await OnAppointmentClick(data);
 	}
 
-	private DateTime? ExistingJobDays(DateTime date)
+	private DateTime? ExistingJobDays(DateTime date, AppointmentData item)
 	{
 		DateTime? currDate = null;
 		if (JobDays != null)
 		{
-			DateTime? jobDaysEqualToDate = JobDays.Where(x => x == date.Day).Select(x => new DateTime(date.Year, date.Month, x)).FirstOrDefault();
+			DateTime? jobDaysEqualToDate = JobDays.Where(x => x == date)
+			.Select(x => x).FirstOrDefault();
 
 			currDate = jobDaysEqualToDate == DateTime.MinValue ? null : jobDaysEqualToDate;
 

@@ -5,11 +5,11 @@
 	<div class="row">
 		<div class="col-xl-6">
 			<RadzenScheduler @ref=@scheduler style="height: 768px;" TItem="Appointment" Data=@appointments StartProperty="Start" EndProperty="End"
-							 TextProperty="Text" SelectedIndex="2"
+							 TextProperty="Text" SelectedIndex="2" LoadData="ChangeMonthAsync"
 							 SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
 				<RadzenDayView />
 				<RadzenWeekView />
-				<RadzenMonthView JobDays=@workDays VizitTypeDict=@VizitDict />
+				<RadzenMonthView JobDays=@workDays ShowImages="true" ImgDefault="@VizitDict["–Ø–≤–∫–∞"]" VizitTypeDict=@VizitDict />
 			</RadzenScheduler>
 		</div>
 		<div class="col-xl-6">
@@ -22,25 +22,40 @@
 	RadzenScheduler<Appointment> scheduler;
 	EventConsole console;
 	Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
+	private DateTime? curDate;
 
-	private List<int> workDays;
+	private List<DateTime> workDays;
+
+	async Task ChangeMonthAsync(SchedulerLoadDataEventArgs eventArgs)
+	{
+		if (curDate != scheduler.CurrentDate)
+		{
+			curDate = scheduler.CurrentDate;
+			workDays = Ut.GetWorkDays(curDate.Value, new List<int>() { 2, 6 });
+
+			//	await SetWorkDays(workDays);
+
+			await scheduler.Reload();
+		}
+	}
 
 	protected override void OnInitialized()
 	{
-		workDays = new List<int>() { 2, 5, 9, 12, 16 };
+		//workDays = new List<DateTime>() { new DateTime(DateTime.Now.Year,), 5, 9, 12, 16, 28, 30 };
+
 	}
 
 	public static Dictionary<string, string> VizitDict => new Dictionary<string, string>
 {
-		{"ﬂ‚Í‡", "Images/check-mark.png"}, {"¡ÓÎÂÎ", ""}, {"ŒÚÒÛÚÒÚ‚Ó‚‡Î", ""},{"BirthDay","Images/check-mark.png"}
+		{"–Ø–≤–∫–∞", "Images/check-mark.png"}, {"–ë–æ–ª–µ–ª", "Images/sick.png"}, {"–û—Ç—Å—É—Ç—Å—Ç–≤–æ–≤–∞–ª", "Images/absent.png"},{"BirthDay","Images/check-mark.png"}
 	};
 
-	public string[] ExcludeVizitTypes { get => new[] { "¡ÓÎÂÎ", "ŒÚÒÛÚÒÚ‚Ó‚‡Î" }; }
+	public string[] ExcludeVizitTypes { get => new[] { "–ë–æ–ª–µ–ª", "–û—Ç—Å—É—Ç—Å—Ç–≤–æ–≤–∞–ª" }; }
 
 	IList<Appointment> appointments = new List<Appointment>()
 	{
-		new Appointment { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation" },
-		new Appointment { Start = DateTime.Today.AddDays(-1), End = DateTime.Today.AddDays(12), Text = "¡ÓÎÂÎ" }
+		//new Appointment { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation" },
+		//new Appointment { Start = DateTime.Today.AddDays(-1), End = DateTime.Today.AddDays(12), Text = "–ë–æ–ª–µ–ª" }
 	};
 	//{
 	//    new Appointment { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "BirthDay" },

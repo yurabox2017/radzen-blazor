@@ -1,8 +1,9 @@
 @using Radzen.Blazor
 @using Radzen.Blazor.Rendering
+@using System.Globalization
 
 <div class="rz-event" style=@Style @onclick=@OnClick>
-	<div class="rz-event-content" title=@Data?.Text @attributes=@Attributes>
+	<div class="rz-event-content" title=@(string.Format(CultureInfo.InvariantCulture, Data?.Text)) @attributes=@Attributes>
 		@Scheduler.RenderAppointment(Data)
 	</div>
 </div>
@@ -20,7 +21,7 @@
 	public double? Height { get; set; }
 
 	[Parameter]
-	public double? Opasity { get; set; }
+	public double? Opacity { get; set; }
 
 	[Parameter]
 	public EventCallback<AppointmentData> Click { get; set; }
@@ -61,9 +62,9 @@
 			style.Add($"height: {Height.ToInvariantString()}em");
 		}
 
-		if (Opasity.HasValue)
+		if (Opacity.HasValue)
 		{
-			style.Add($"opasity: {Opasity.ToInvariantString()}");
+			style.Add($"opacity: {Opacity.ToInvariantString()}");
 		}
 
 		Style = String.Join(";", style);
