@@ -13,12 +13,12 @@
 </CascadingValue>
 <div @ref=Element  style=@Style @attributes=@Attributes class=@GetCssClass() id=@GetId()>
     <div class="rz-scheduler-nav">
-        <div class="rz-scheduler-nav-prev-next">
-            <button class="rz-button rz-prev" @onclick=@OnPrev><RadzenIcon Icon="chevron_left" /></button>
-            <button class="rz-button rz-next" @onclick=@OnNext><RadzenIcon Icon="chevron_right" /></button>
-            <button class="rz-button rz-today" @onclick=@OnToday>@TodayText</button>
-        </div>
-        <div class="rz-scheduler-nav-title">@SelectedView?.Title</div>
+	    <div class="rz-scheduler-nav-prev-next">
+		    <button class="rz-button rz-prev" @onclick=@OnPrev><RadzenIcon Icon="chevron_left" /></button>
+		    <button class="rz-button rz-next" @onclick=@OnNext><RadzenIcon Icon="chevron_right" /></button>
+		    <button class="rz-button rz-today" @onclick=@OnToday>@TodayText</button>
+	    </div>
+	    <div class="rz-scheduler-nav-title d-inline-flex"><span class="calendar-name">@CalendarName</span> @SelectedView?.Title</div>
         <div class="rz-scheduler-nav-views">
         @foreach (var view in Views)
         {
@@ -32,6 +32,9 @@
 @code {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+	[Parameter]
+	public string CalendarName { get; set; }
 
     [Parameter]
     public RenderFragment<TItem> Template { get; set; }
